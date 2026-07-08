@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Management System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { transition: background-color 0.3s ease, color 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+    <!-- MAIN CARD CONTAINER (MATCHING SCREENSHOTS) -->
+    <div class="max-w-7xl mx-auto my-6 bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+        
+        <!-- HEADER (Store Management, Admin, Logout) -->
+        <header class="flex justify-between items-center border-b pb-6 mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-xl shadow">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold text-slate-800">Store Management</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-slate-600 font-semibold">
+                    <i class="fa-solid fa-user-tie text-lg"></i>
+                    <span id="user-display">admin</span>
+                </div>
+                <button onclick="handleLogout()" class="flex items-center gap-1.5 text-red-600 hover:text-red-700 font-bold transition">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- TOP METRICS STATS CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
+            <!-- Products -->
+            <div class="bg-slate-50 border p-4 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow transition">
+                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-box"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-bold uppercase">Products</p>
+                    <p class="text-xl font-bold text-slate-800" id="stat-products">5</p>
+                </div>
+            </div>
+            <!-- Customers -->
+            <div class="bg-slate-50 border p-4 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow transition">
+                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-bold uppercase">Customers</p>
+                    <p class="text-xl font-bold text-slate-800" id="stat-customers">2</p>
+                </div>
+            </div>
+            <!-- Suppliers -->
+            <div class="bg-slate-50 border p-4 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow transition">
+                <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-truck-field"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-bold uppercase">Suppliers</p>
+                    <p class="text-xl font-bold text-slate-800" id="stat-suppliers">2</p>
+                </div>
+            </div>
+            <!-- Sales -->
+            <div class="bg-slate-50 border p-4 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow transition">
+                <div class="w-10 h-10 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-receipt"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-bold uppercase">Sales</p>
+                    <p class="text-xl font-bold text-slate-800" id="stat-sales">0</p>
+                </div>
+            </div>
+            <!-- Low Stock -->
+            <div class="bg-slate-50 border p-4 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow transition">
+                <div class="w-10 h-10 bg-red-100 text-red-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-bold uppercase">Low Stock</p>
+                    <p class="text-xl font-bold text-slate-800" id="stat-lowstock">2</p>
+                </div>
+            </div>
+            <!-- Store QR -->
+            <div class="bg-slate-50 border p-4 rounded-2xl flex items-center gap-3 shadow-sm hover:shadow transition cursor-pointer" onclick="switchTab('dashboard')">
+                <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-qrcode"></i></div>
+                <div>
+                    <p class="text-xs text-gray-400 font-bold uppercase">Store QR</p>
+                    <p class="text-sm font-extrabold text-indigo-600">Scan Me</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS BAR MENU -->
+        <nav class="flex flex-wrap gap-2 border-b pb-4 mb-6 overflow-x-auto">
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+            <button onclick="switchTab('products')" id="btn-products" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition"><i class="fa-solid fa-box-open"></i> Products</button>
+            <button onclick="switchTab('billing')" id="btn-billing" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition"><i class="fa-solid fa-calculator"></i> Billing</button>
+            <button onclick="switchTab('stock')" id="btn-stock" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition"><i class="fa-solid fa-warehouse"></i> Stock</button>
+            <button onclick="switchTab('customers')" id="btn-customers" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition"><i class="fa-solid fa-users-gear"></i> Customers</button>
+            <button onclick="switchTab('suppliers')" id="btn-suppliers" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition"><i class="fa-solid fa-truck"></i> Suppliers</button>
+            <button onclick="switchTab('reports')" id="btn-reports" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition"><i class="fa-solid fa-chart-line"></i> Reports</button>
+        </nav>
+
+        <!-- VIEW AREA -->
+        <div id="view-content">
+
+            <!-- DASHBOARD VIEW -->
+            <div id="tab-dashboard" class="tab-view space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-house-chimney text-indigo-500"></i> Dashboard Overview</h3>
+                    <p class="text-sm text-gray-500 mt-1">Welcome to the complete Store Management System. All modules are live.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                    <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center gap-3">
+                        <div class="text-emerald-600 text-lg"><i class="fa-solid fa-circle-check"></i></div>
+                        <span class="text-sm font-bold text-emerald-800">DB: Connected</span>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-center gap-3">
+                        <div class="text-blue-600 text-lg"><i class="fa-solid fa-receipt"></i></div>
+                        <span class="text-sm font-bold text-blue-800">Bills: <span id="dash-bills">0</span></span>
+                    </div>
+                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl flex items-center gap-3">
+                        <div class="text-indigo-600 text-lg"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                        <span class="text-sm font-bold text-indigo-800">Revenue: <span id="dash-revenue">$0.00</span></span>
+                    </div>
+                    <div class="bg-slate-50 border p-4 rounded-2xl flex justify-between items-center">
+                        <span class="text-sm font-bold text-slate-700 flex items-center gap-2"><i class="fa-solid fa-qrcode"></i> Store QR</span>
+                        <button onclick="generateStoreQr()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">Generate</button>
+                    </div>
+                </div>
+
+                <!-- Store QR Code Display -->
+                <div id="store-qr-section" class="bg-slate-50 p-6 rounded-2xl max-w-sm flex items-center gap-4 mt-6 border border-dashed">
+                    <img id="store-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=SafarStoreSystem" class="w-24 h-24 border p-2 bg-white rounded-xl shadow-sm" alt="QR">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">Store QR Code</h4>
+                        <p class="text-xs text-gray-500 mt-1">Scan to visit store database profile.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCTS VIEW -->
+            <div id="tab-products" class="tab-view hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-box text-indigo-500"></i> Product Management</h3>
+                    <button onclick="openProductModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm px-4 py-2 rounded-xl transition shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Add Product
+                    </button>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50 p-4 rounded-2xl border">
+                    <input type="text" id="prod-search" placeholder="Search products by name or category..." class="w-full md:w-96 px-4 py-2 border rounded-xl focus:ring focus:ring-indigo-300 focus:outline-none">
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button onclick="searchProducts()" class="flex-1 md:flex-none bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 flex items-center justify-center gap-1"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+                        <button onclick="clearSearch()" class="flex-1 md:flex-none bg-white border px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-50 flex items-center justify-center gap-1"><i class="fa-solid fa-rotate-left"></i> Clear</button>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="overflow-x-auto border rounded-2xl bg-white shadow-sm">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50 font-bold text-gray-500">
+                            <tr>
+                                <th class="px-6 py-4 text-left">#</th>
+                                <th class="px-6 py-4 text-left">Name</th>
+                                <th class="px-6 py-4 text-left">Category</th>
+                                <th class="px-6 py-4 text-left">Price</th>
+                                <th class="px-6 py-4 text-left">Stock</th>
+                                <th class="px-6 py-4 text-left">QR</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body" class="divide-y divide-gray-200 font-semibold text-slate-700">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BILLING VIEW -->
+            <div id="tab-billing" class="tab-view hidden space-y-6">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-calculator text-indigo-500"></i> Billing System</h3>
+                
+                <form id="billing-form" onsubmit="addToBill(event)" class="bg-slate-50 p-6 rounded-2xl border grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase">Customer</label>
+                        <input type="text" id="bill-customer-name" placeholder="Customer name" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring focus:ring-indigo-300" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase">Product</label>
+                        <select id="bill-product-select" onchange="updatePriceField()" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring focus:ring-indigo-300" required>
+                            <!-- Options pre-populated -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase">Qty</label>
+                        <input type="number" id="bill-qty" min="1" value="1" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring focus:ring-indigo-300" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1.5 uppercase">Price</label>
+                        <input type="text" id="bill-price" class="w-full px-4 py-2 border rounded-xl bg-gray-100 font-bold" readonly>
+                    </div>
+                    
+                    <div class="md:col-span-4 flex flex-wrap gap-2 pt-2">
+                        <button type="submit" class="bg-slate-900 text-white font-bold text-sm px-4 py-2 rounded-xl hover:bg-slate-800 transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Add to Bill</button>
+                        <button type="button" onclick="generateBill()" class="bg-emerald-600 text-white font-bold text-sm px-4 py-2 rounded-xl hover:bg-emerald-700 transition flex items-center gap-1.5"><i class="fa-solid fa-file-invoice-dollar"></i> Generate Bill</button>
+                        <button type="button" onclick="printInvoice()" class="bg-amber-500 text-white font-bold text-sm px-4 py-2 rounded-xl hover:bg-amber-600 transition flex items-center gap-1.5"><i class="fa-solid fa-print"></i> Print Invoice</button>
+                        <button type="button" onclick="clearBill()" class="bg-white border text-gray-700 font-bold text-sm px-4 py-2 rounded-xl hover:bg-gray-50 transition flex items-center gap-1.5"><i class="fa-solid fa-rotate-left"></i> Clear</button>
+                    </div>
+                </form>
+
+                <!-- Billing Items Table -->
+                <div class="overflow-x-auto border rounded-2xl bg-white shadow-sm">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50 font-bold text-gray-500">
+                            <tr>
+                                <th class="px-6 py-4 text-left">Product</th>
+                                <th class="px-6 py-4 text-left">Qty</th>
+                                <th class="px-6 py-4 text-left">Price</th>
+                                <th class="px-6 py-4 text-left">Total</th>
+                                <th class="px-6 py-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billing-items-body" class="divide-y divide-gray-200 font-semibold text-slate-700">
+                            <!-- Temporary billing items -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <span class="text-xs bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-lg border border-emerald-100 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Database Connected : All features live</span>
+                    <h4 class="text-2xl font-extrabold text-slate-800">Total: <span id="billing-total-amount">$0.00</span></h4>
+                </div>
+            </div>
+
+            <!-- STOCK VIEW -->
+            <div id="tab-stock" class="tab-view hidden space-y-6">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-warehouse text-indigo-500"></i> Stock Management</h3>
+                
+                <div class="relative w-full md:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
+                    <input type="text" id="stock-search" oninput="filterStock()" placeholder="Search product..." class="w-full pl-10 pr-4 py-2 border rounded-xl focus:outline-none focus:ring focus:ring-indigo-300">
+                </div>
+
+                <div class="overflow-x-auto border rounded-2xl bg-white shadow-sm">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50 font-bold text-gray-500">
+                            <tr>
+                                <th class="px-6 py-4 text-left">Product</th>
+                                <th class="px-6 py-4 text-left">Current Stock</th>
+                                <th class="px-6 py-4 text-left">Status</th>
+                                <th class="px-6 py-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-table-body" class="divide-y divide-gray-200 font-semibold text-slate-700">
+                            <!-- Stock items -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CUSTOMERS VIEW -->
+            <div id="tab-customers" class="tab-view hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-users-gear text-indigo-500"></i> Customer Management</h3>
+                    <button onclick="openCustomerModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm px-4 py-2 rounded-xl transition shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Add Customer
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto border rounded-2xl bg-white shadow-sm">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50 font-bold text-gray-500">
+                            <tr>
+                                <th class="px-6 py-4 text-left">#</th>
+                                <th class="px-6 py-4 text-left">Name</th>
+                                <th class="px-6 py-4 text-left">Email</th>
+                                <th class="px-6 py-4 text-left">Phone</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-table-body" class="divide-y divide-gray-200 font-semibold text-slate-700">
+                            <!-- Customer items -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SUPPLIERS VIEW -->
+            <div id="tab-suppliers" class="tab-view hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-truck text-indigo-500"></i> Supplier Management</h3>
+                    <button onclick="openSupplierModal()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm px-4 py-2 rounded-xl transition shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Add Supplier
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto border rounded-2xl bg-white shadow-sm">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50 font-bold text-gray-500">
+                            <tr>
+                                <th class="px-6 py-4 text-left">#</th>
+                                <th class="px-6 py-4 text-left">Supplier Name</th>
+                                <th class="px-6 py-4 text-left">Email</th>
+                                <th class="px-6 py-4 text-left">Phone</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suppliers-table-body" class="divide-y divide-gray-200 font-semibold text-slate-700">
+                            <!-- Supplier items -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REPORTS VIEW -->
+            <div id="tab-reports" class="tab-content hidden space-y-6">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4"><i class="fa-solid fa-chart-line text-indigo-500"></i> Sales Reports & Analytics</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow border">
+                        <h4 class="font-bold text-slate-700 mb-4">Most Demanded Categories</h4>
+                        <div class="space-y-4 text-sm font-semibold">
+                            <div>
+                                <div class="flex justify-between mb-1"><span>Electronics</span><span>60%</span></div>
+                                <div class="w-full bg-gray-200 h-2.5 rounded"><div class="bg-indigo-600 h-2.5 rounded" style="width: 60%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1"><span>Accessories</span><span>25%</span></div>
+                                <div class="w-full bg-gray-200 h-2.5 rounded"><div class="bg-indigo-600 h-2.5 rounded" style="width: 25%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1"><span>Audio Devices</span><span>15%</span></div>
+                                <div class="w-full bg-gray-200 h-2.5 rounded"><div class="bg-indigo-600 h-2.5 rounded" style="width: 15%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow border">
+                        <h4 class="font-bold text-slate-700 mb-4">Sales History</h4>
+                        <div class="space-y-3 max-h-48 overflow-y-auto" id="sales-history-list">
+                            <!-- Transactions list -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL 1: PRODUCT MODAL (ADD / EDIT) -->
+    <div id="product-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-md">
+            <h4 id="prod-modal-title" class="text-lg font-bold text-slate-800 border-b pb-3 mb-4">Add New Product</h4>
+            <form onsubmit="handleProductSubmit(event)" class="space-y-4">
+                <input type="hidden" id="edit-prod-index">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Product Name</label>
+                    <input type="text" id="modal-prod-name" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Category</label>
+                    <select id="modal-prod-category" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Audio">Audio</option>
+                        <option value="General">General</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Price ($)</label>
+                        <input type="number" id="modal-prod-price" step="0.01" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Stock Qty</label>
+                        <input type="number" id="modal-prod-stock" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-3 border-t">
+                    <button type="submit" class="flex-1 bg-slate-900 text-white font-bold py-2 rounded-xl transition">Save</button>
+                    <button type="button" onclick="closeProductModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-2 rounded-xl transition">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CUSTOMER MODAL -->
+    <div id="customer-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-md">
+            <h4 class="text-lg font-bold text-slate-800 border-b pb-3 mb-4">Add New Customer</h4>
+            <form onsubmit="handleCustomerSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Full Name</label>
+                    <input type="text" id="modal-cust-name" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Email ID</label>
+                    <input type="email" id="modal-cust-email" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Phone Number</label>
+                    <input type="text" id="modal-cust-phone" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                </div>
+                <div class="flex gap-2 pt-3 border-t">
+                    <button type="submit" class="flex-1 bg-slate-900 text-white font-bold py-2 rounded-xl transition">Add</button>
+                    <button type="button" onclick="closeCustomerModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-2 rounded-xl transition">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: SUPPLIER MODAL -->
+    <div id="supplier-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-md">
+            <h4 class="text-lg font-bold text-slate-800 border-b pb-3 mb-4">Add New Supplier</h4>
+            <form onsubmit="handleSupplierSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Supplier Name</label>
+                    <input type="text" id="modal-supp-name" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Email ID</label>
+                    <input type="email" id="modal-supp-email" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Phone Number</label>
+                    <input type="text" id="modal-supp-phone" class="w-full border rounded-xl px-3 py-2 focus:ring focus:ring-indigo-300 focus:outline-none" required>
+                </div>
+                <div class="flex gap-2 pt-3 border-t">
+                    <button type="submit" class="flex-1 bg-slate-900 text-white font-bold py-2 rounded-xl transition">Add</button>
+                    <button type="button" onclick="closeSupplierModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-2 rounded-xl transition">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP JAVASCRIPT -->
+    <script>
+        // MOCK DATA SEEDING (Matching Screenshots)
+        const defaultProducts = [
+            { id: 1, name: "Wireless Mouse", category: "Electronics", price: 29.99, stock: 45 },
+            { id: 2, name: "Mechanical Keyboard", category: "Electronics", price: 79.50, stock: 18 },
+            { id: 3, name: "USB-C Cable", category: "Accessories", price: 12.99, stock: 7 },
+            { id: 4, name: "Bluetooth Speaker", category: "Audio", price: 49.99, stock: 3 }
+        ];
+
+        const defaultCustomers = [
+            { id: 1, name: "John Doe", email: "john@mail.com", phone: "123-456-7890" },
+            { id: 2, name: "Jane Smith", email: "jane@mail.com", phone: "987-654-3210" }
+        ];
+
+        const defaultSuppliers = [
+            { id: 1, name: "Tech Distributors", email: "info@techdist.com", phone: "555-0199" },
+            { id: 2, name: "Global Accessories", email: "sales@globalacc.com", phone: "555-0244" }
+        ];
+
+        let currentActiveTab = 'dashboard';
+        let currentBillList = [];
+
+        // Database seeding on first load
+        function initDb() {
+            if (!localStorage.getItem('store_products')) {
+                localStorage.setItem('store_products', JSON.stringify(defaultProducts));
+            }
+            if (!localStorage.getItem('store_customers')) {
+                localStorage.setItem('store_customers', JSON.stringify(defaultCustomers));
+            }
+            if (!localStorage.getItem('store_suppliers')) {
+                localStorage.setItem('store_suppliers', JSON.stringify(defaultSuppliers));
+            }
+            if (!localStorage.getItem('store_sales_count')) {
+                localStorage.setItem('store_sales_count', '0');
+            }
+            if (!localStorage.getItem('store_revenue')) {
+                localStorage.setItem('store_revenue', '0.00');
+            }
+            if (!localStorage.getItem('store_bills_count')) {
+                localStorage.setItem('store_bills_count', '0');
+            }
+            if (!localStorage.getItem('store_sales_history')) {
+                localStorage.setItem('store_sales_history', JSON.stringify([]));
+            }
+        }
+
+        // Tab routing switcher
+        function switchTab(tabId) {
+            currentActiveTab = tabId;
+            document.querySelectorAll('.tab-view').forEach(view => {
+                view.classList.add('hidden');
+            });
+            const targetView = document.getElementById('tab-' + tabId);
+            if (targetView) targetView.classList.remove('hidden');
+
+            // Apply selected background state to tab button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition bg-white text-gray-700 hover:bg-gray-50 border-gray-200";
+            });
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border transition bg-slate-900 text-white border-slate-900 shadow-sm";
+            }
+
+            // Trigger specific rendering methods
+            if (tabId === 'dashboard') updateDashboardData();
+            if (tabId === 'products') renderProductsList();
+            if (tabId === 'billing') populateBillingOptions();
+            if (tabId === 'stock') renderStockList();
+            if (tabId === 'customers') renderCustomersList();
+            if (tabId === 'suppliers') renderSuppliersList();
+            if (tabId === 'reports') renderReportsView();
+        }
+
+        // Metrics calculations
+        function calculateMetrics() {
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const customers = JSON.parse(localStorage.getItem('store_customers')) || [];
+            const suppliers = JSON.parse(localStorage.getItem('store_suppliers')) || [];
+            const salesCount = localStorage.getItem('store_sales_count') || '0';
+
+            // Calculate low stock items (stock <= 10)
+            const lowStockCount = products.filter(p => p.stock <= 10).length;
+
+            document.getElementById('stat-products').innerText = products.length;
+            document.getElementById('stat-customers').innerText = customers.length;
+            document.getElementById('stat-suppliers').innerText = suppliers.length;
+            document.getElementById('stat-sales').innerText = salesCount;
+            document.getElementById('stat-lowstock').innerText = lowStockCount;
+        }
+
+        function updateDashboardData() {
+            calculateMetrics();
+            const billsCount = localStorage.getItem('store_bills_count') || '0';
+            const revenueVal = localStorage.getItem('store_revenue') || '0.00';
+
+            document.getElementById('dash-bills').innerText = billsCount;
+            document.getElementById('dash-revenue').innerText = "$" + parseFloat(revenueVal).toFixed(2);
+        }
+
+        // 1. PRODUCTS COMPONENT LOGICS
+        function renderProductsList() {
+            calculateMetrics();
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = "";
+
+            products.forEach((p, idx) => {
+                // Stock color tag matching
+                let stockClass = "bg-green-100 text-green-800";
+                if (p.stock > 0 && p.stock <= 10) stockClass = "bg-pink-100 text-pink-800";
+                if (p.stock === 0) stockClass = "bg-red-100 text-red-800";
+
+                const prData = `ID: ${p.id} | Name: ${p.name} | Category: ${p.category} | Price: $${p.price}`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(prData)}`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="px-6 py-4">${idx + 1}</td>
+                        <td class="px-6 py-4 font-bold text-slate-800">${p.name}</td>
+                        <td class="px-6 py-4 text-gray-500">${p.category}</td>
+                        <td class="px-6 py-4">$${parseFloat(p.price).toFixed(2)}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${stockClass}">${p.stock}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <button onclick="viewProductQr('${qrUrl}')" class="text-indigo-600 hover:text-indigo-800 text-lg"><i class="fa-solid fa-qrcode"></i></button>
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-1">
+                            <button onclick="editProduct(${idx})" class="p-1.5 hover:bg-gray-100 rounded text-slate-600 transition"><i class="fa-regular fa-pen-to-square"></i></button>
+                            <button onclick="deleteProduct(${idx})" class="p-1.5 hover:bg-red-50 text-red-600 rounded transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('prod-search').value.toLowerCase().trim();
+            if (query === "") {
+                renderProductsList();
+                return;
+            }
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = "";
+
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
+
+            filtered.forEach((p, idx) => {
+                let stockClass = "bg-green-100 text-green-800";
+                if (p.stock > 0 && p.stock <= 10) stockClass = "bg-pink-100 text-pink-800";
+                if (p.stock === 0) stockClass = "bg-red-100 text-red-800";
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="px-6 py-4">${idx + 1}</td>
+                        <td class="px-6 py-4 font-bold text-slate-800">${p.name}</td>
+                        <td class="px-6 py-4 text-gray-500">${p.category}</td>
+                        <td class="px-6 py-4">$${parseFloat(p.price).toFixed(2)}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${stockClass}">${p.stock}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <button class="text-indigo-600 hover:text-indigo-800 text-lg"><i class="fa-solid fa-qrcode"></i></button>
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-1">
+                            <button onclick="editProduct(${idx})" class="p-1.5 hover:bg-gray-100 rounded text-slate-600 transition"><i class="fa-regular fa-pen-to-square"></i></button>
+                            <button onclick="deleteProduct(${idx})" class="p-1.5 hover:bg-red-50 text-red-600 rounded transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function clearSearch() {
+            document.getElementById('prod-search').value = "";
+            renderProductsList();
+        }
+
+        // Product modals controls
+        function openProductModal() {
+            document.getElementById('edit-prod-index').value = "";
+            document.getElementById('prod-modal-title').innerText = "Add New Product";
+            document.getElementById('modal-prod-name').value = "";
+            document.getElementById('modal-prod-price').value = "";
+            document.getElementById('modal-prod-stock').value = "";
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function handleProductSubmit(event) {
+            event.preventDefault();
+            const idxVal = document.getElementById('edit-prod-index').value;
+            const name = document.getElementById('modal-prod-name').value;
+            const category = document.getElementById('modal-prod-category').value;
+            const price = parseFloat(document.getElementById('modal-prod-price').value);
+            const stock = parseInt(document.getElementById('modal-prod-stock').value);
+
+            let products = JSON.parse(localStorage.getItem('store_products')) || [];
+
+            if (idxVal === "") {
+                const newId = Date.now();
+                products.push({ id: newId, name, category, price, stock });
+            } else {
+                const idx = parseInt(idxVal);
+                products[idx].name = name;
+                products[idx].category = category;
+                products[idx].price = price;
+                products[idx].stock = stock;
+            }
+
+            localStorage.setItem('store_products', JSON.stringify(products));
+            closeProductModal();
+            renderProductsList();
+        }
+
+        function editProduct(idx) {
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const p = products[idx];
+
+            document.getElementById('edit-prod-index').value = idx;
+            document.getElementById('prod-modal-title').innerText = "Update Product Info";
+            document.getElementById('modal-prod-name').value = p.name;
+            document.getElementById('modal-prod-category').value = p.category;
+            document.getElementById('modal-prod-price').value = p.price;
+            document.getElementById('modal-prod-stock').value = p.stock;
+
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function deleteProduct(idx) {
+            if (confirm("Are you sure you want to remove this product?")) {
+                let products = JSON.parse(localStorage.getItem('store_products')) || [];
+                products.splice(idx, 1);
+                localStorage.setItem('store_products', JSON.stringify(products));
+                renderProductsList();
+            }
+        }
+
+        function viewProductQr(qrUrl) {
+            const printWindow = window.open('', '_blank', 'width=350,height=400');
+            printWindow.document.write(`
+                <html style="display:flex; align-items:center; justify-content:center; height:100%;">
+                <body style="text-align:center; font-family:sans-serif; margin:0; padding:20px;">
+                    <h3>Product Scannable QR</h3>
+                    <img src="${qrUrl}" style="border: 2px dashed #333; padding: 10px; border-radius: 8px;">
+                    <p style="font-size:12px; color:#666; margin-top:15px;">Scan this bar tag for instant inventory lookups.</p>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        // 2. BILLING COMPONENT LOGICS
+        function populateBillingOptions() {
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const select = document.getElementById('bill-product-select');
+            select.innerHTML = '<option value="">Select product</option>';
+
+            products.forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.name} ($${p.price})</option>`;
+            });
+            updatePriceField();
+        }
+
+        function updatePriceField() {
+            const pId = document.getElementById('bill-product-select').value;
+            if (pId === "") {
+                document.getElementById('bill-price').value = "";
+                return;
+            }
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const p = products.find(prod => prod.id === parseInt(pId));
+            if (p) {
+                document.getElementById('bill-price').value = "$" + parseFloat(p.price).toFixed(2);
+            }
+        }
+
+        function addToBill(event) {
+            event.preventDefault();
+            const pId = document.getElementById('bill-product-select').value;
+            const qty = parseInt(document.getElementById('bill-qty').value);
+
+            if (pId === "") return;
+
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const p = products.find(prod => prod.id === parseInt(pId));
+
+            if (p) {
+                // Check stock availability
+                if (qty > p.stock) {
+                    alert(`Sorry! Only ${p.stock} units are currently left in stock.`);
+                    return;
+                }
+
+                // Check if product already exists in current list
+                const existing = currentBillList.find(b => b.id === p.id);
+                if (existing) {
+                    if ((existing.qty + qty) > p.stock) {
+                        alert(`Sorry! Cumulatively you selected ${existing.qty + qty} which exceeds stock limit of ${p.stock}.`);
+                        return;
+                    }
+                    existing.qty += qty;
+                } else {
+                    currentBillList.push({
+                        id: p.id,
+                        name: p.name,
+                        price: p.price,
+                        qty: qty
+                    });
+                }
+                renderActiveBillTable();
+            }
+        }
+
+        function renderActiveBillTable() {
+            const tbody = document.getElementById('billing-items-body');
+            tbody.innerHTML = "";
+            let totalSum = 0;
+
+            if (currentBillList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-400">No items in bill</td></tr>`;
+                document.getElementById('billing-total-amount').innerText = "$0.00";
+                return;
+            }
+
+            currentBillList.forEach((b, idx) => {
+                const subtotal = b.price * b.qty;
+                totalSum += subtotal;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="px-6 py-4 font-bold text-slate-800">${b.name}</td>
+                        <td class="px-6 py-4">${b.qty}</td>
+                        <td class="px-6 py-4">$${parseFloat(b.price).toFixed(2)}</td>
+                        <td class="px-6 py-4 font-bold text-indigo-600">$${subtotal.toFixed(2)}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="removeFromBill(${idx})" class="p-1 text-red-500 hover:text-red-700 transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('billing-total-amount').innerText = "$" + totalSum.toFixed(2);
+        }
+
+        function removeFromBill(idx) {
+            currentBillList.splice(idx, 1);
+            renderActiveBillTable();
+        }
+
+        function generateBill() {
+            if (currentBillList.length === 0) {
+                alert("Please add at least one product to generate invoice.");
+                return;
+            }
+
+            const customerName = document.getElementById('bill-customer-name').value.trim() || "Guest Customer";
+            let products = JSON.parse(localStorage.getItem('store_products')) || [];
+
+            // Calculate Sum & Deduct Stocks
+            let billSum = 0;
+            currentBillList.forEach(b => {
+                billSum += b.price * b.qty;
+                const match = products.find(p => p.id === b.id);
+                if (match) {
+                    match.stock = Math.max(0, match.stock - b.qty);
+                }
+            });
+
+            // Update local storage db state
+            localStorage.setItem('store_products', JSON.stringify(products));
+
+            // Update Bills Count
+            let billsCount = parseInt(localStorage.getItem('store_bills_count') || '0') + 1;
+            localStorage.setItem('store_bills_count', billsCount.toString());
+
+            // Update Sales count
+            let salesCount = parseInt(localStorage.getItem('store_sales_count') || '0') + currentBillList.length;
+            localStorage.setItem('store_sales_count', salesCount.toString());
+
+            // Update total Revenue
+            let currentRev = parseFloat(localStorage.getItem('store_revenue') || '0.00');
+            localStorage.setItem('store_revenue', (currentRev + billSum).toString());
+
+            // Update Sales History
+            let history = JSON.parse(localStorage.getItem('store_sales_history')) || [];
+            const invoiceNo = "INV-" + Math.floor(1000 + Math.random() * 9000);
+            history.unshift({
+                id: invoiceNo,
+                customerName: customerName,
+                total: billSum,
+                date: new Date().toLocaleDateString()
+            });
+            localStorage.setItem('store_sales_history', JSON.stringify(history));
+
+            alert("Invoice Successfully Generated!");
+            
+            // Print Trigger
+            printInvoice();
+
+            // Clear bill state
+            clearBill();
+        }
+
+        function clearBill() {
+            currentBillList = [];
+            document.getElementById('bill-customer-name').value = "";
+            document.getElementById('bill-qty').value = "1";
+            document.getElementById('bill-product-select').value = "";
+            updatePriceField();
+            renderActiveBillTable();
+        }
+
+        // SCANNABLE INVOICE BILL PRINTER
+        function printInvoice() {
+            if (currentBillList.length === 0) {
+                alert("No active bill items detected to print.");
+                return;
+            }
+
+            const customerName = document.getElementById('bill-customer-name').value.trim() || "Guest Customer";
+            const invNo = "INV-" + Math.floor(1000 + Math.random() * 9000);
+            let subtotalSum = 0;
+
+            let tableRows = "";
+            currentBillList.forEach(b => {
+                const sub = b.price * b.qty;
+                subtotalSum += sub;
+                tableRows += `
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">${b.name}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${b.qty}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${parseFloat(b.price).toFixed(2)}</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-weight:bold;">$${sub.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            // Generate scannable QR verification link
+            const qrPayload = `Invoice No: ${invNo} | Customer: ${customerName} | Total bill: $${subtotalSum.toFixed(2)}`;
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrPayload)}`;
+
+            const printWindow = window.open('', '_blank', 'width=800,height=750');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Bill Invoice - ${invNo}</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 40px; color: #333; background: #fafafa; }
+                        .invoice-card { max-width: 600px; margin: auto; padding: 30px; background: #fff; border: 1px dashed #cbd5e1; border-radius: 12px; }
+                        .header { text-align: center; border-bottom: 2px solid #334155; padding-bottom: 20px; }
+                        .header h2 { margin: 0; color: #0f172a; }
+                        .details { margin: 20px 0; font-size: 14px; line-height: 1.6; }
+                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                        .items-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                        .total-text { font-size: 20px; font-weight: 800; text-align: right; margin-top: 20px; color: #0f172a; }
+                        .qr-section { text-align: center; margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+                        .qr-section img { border: 1px solid #e2e8f0; padding: 10px; border-radius: 10px; background: #fff; }
+                        .footer { text-align: center; margin-top: 30px; font-size: 11px; color: #64748b; }
+                        .btn-print { background: #0f172a; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; display: block; margin: 15px auto 0 auto; }
+                        @media print { .btn-print { display: none; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="invoice-card">
+                        <div class="header">
+                            <h2>Safar Store Management System</h2>
+                            <p style="margin:5px 0 0 0; font-size:12px; color:#64748b;">Premium Retail Solutions & Invoicing</p>
+                        </div>
+                        <div class="details">
+                            <div class="grid">
+                                <div>
+                                    <p><strong>Customer:</strong> ${customerName}</p>
+                                    <p><strong>Invoice No:</strong> ${invNo}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+                                    <p><strong>System State:</strong> Secured</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table class="items-table">
+                            <thead style="background:#f8fafc; font-weight:bold;">
+                                <tr>
+                                    <td style="padding: 10px; text-align: left;">Product</td>
+                                    <td style="padding: 10px; text-align: center;">Qty</td>
+                                    <td style="padding: 10px; text-align: right;">Price</td>
+                                    <td style="padding: 10px; text-align: right;">Total</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+
+                        <p class="total-text">Grand Total: $${subtotalSum.toFixed(2)}</p>
+
+                        <div class="qr-section">
+                            <img src="${qrCodeUrl}" alt="Invoice Scan">
+                            <p style="font-size:11px; color:#64748b; margin-top:5px;">Scan with mobile scanner to verify bill details.</p>
+                        </div>
+
+                        <div class="footer">
+                            <p>Thank you for purchasing with us. Please visit again!</p>
+                            <button onclick="window.print()" class="btn-print"><i class="fa-solid fa-print"></i> Print Receipt</button>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        // 3. STOCK COMPONENT LOGICS
+        function renderStockList() {
+            calculateMetrics();
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const tbody = document.getElementById('stock-table-body');
+            tbody.innerHTML = "";
+
+            products.forEach((p, idx) => {
+                let statusBadge = "bg-green-100 text-green-800";
+                let statusText = "Good";
+
+                if (p.stock > 0 && p.stock <= 10) {
+                    statusBadge = "bg-pink-100 text-pink-800";
+                    statusText = "Low";
+                } else if (p.stock === 0) {
+                    statusBadge = "bg-red-100 text-red-800";
+                    statusText = "Critical";
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="px-6 py-4 font-bold text-slate-800">${p.name}</td>
+                        <td class="px-6 py-4 font-bold">${p.stock}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusBadge}">${statusText}</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="updateStockQty(${idx})" class="bg-slate-900 text-white font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5 ml-auto"><i class="fa-solid fa-pen-nib"></i> Update</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterStock() {
+            const query = document.getElementById('stock-search').value.toLowerCase().trim();
+            const products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const tbody = document.getElementById('stock-table-body');
+            tbody.innerHTML = "";
+
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+
+            filtered.forEach((p, idx) => {
+                let statusBadge = "bg-green-100 text-green-800";
+                let statusText = "Good";
+
+                if (p.stock > 0 && p.stock <= 10) {
+                    statusBadge = "bg-pink-100 text-pink-800";
+                    statusText = "Low";
+                } else if (p.stock === 0) {
+                    statusBadge = "bg-red-100 text-red-800";
+                    statusText = "Critical";
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="px-6 py-4 font-bold text-slate-800">${p.name}</td>
+                        <td class="px-6 py-4 font-bold">${p.stock}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusBadge}">${statusText}</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="updateStockQty(${idx})" class="bg-slate-900 text-white font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5 ml-auto"><i class="fa-solid fa-pen-nib"></i> Update</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function updateStockQty(idx) {
+            let products = JSON.parse(localStorage.getItem('store_products')) || [];
+            const p = products[idx];
+            const newVal = prompt(`Update stock count for '${p.name}':`, p.stock);
+            if (newVal !== null && !isNaN(newVal)) {
+                products[idx].stock = parseInt(newVal);
+                localStorage.setItem('store_products', JSON.stringify(products));
+                renderStockList();
+            }
+        }
+
+        // 4. CUSTOMERS COMPONENT LOGICS
+        function renderCustomersList() {
+            calculateMetrics();
+            const customers = JSON.parse(localStorage.getItem('store_customers')) || [];
+            const tbody = document.getElementById('customers-table-body');
+            tbody.innerHTML = "";
+
+            customers.forEach((c, idx) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="px-6 py-4">${idx + 1}</td>
+                        <td class="px-6 py-4 font-bold text-slate-800">${c.name}</td>
+                        <td class="px-6 py-4 text-gray-500">${c.email}</td>
+                        <td class="px-6 py-4 font-bold text-slate-600">${c.phone}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="deleteCustomer(${idx})" class="p-1.5 hover:bg-red-50 text-red-600 rounded transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openCustomerModal() {
+            document.getElementById('modal-cust-name').value = "";
+            document.getElementById('modal-cust-email').value = "";
+            document.getElementById('modal-cust-phone').value = "";
+            document.getElementById('customer-modal').classList.remove('hidden');
+        }
+
+        function closeCustomerModal() {
+            document.getElementById('customer-modal').classList.add('hidden');
+        }
+
+        function handleCustomerSubmit(event) {
+            event.preventDefault();
+            const name = document.getElementById('modal-cust-name').value;
+            const email = document.getElementById('modal-cust-email').value;
+            const phone = document.getElementById('modal-cust-phone').value;
+
+            let customers = JSON.parse(localStorage.getItem('store_customers')) || [];
+            customers.push({ id: Date.now(), name, email, phone });
+            localStorage.setItem('store_customers', JSON.stringify(customers));
+
+            closeCustomerModal();
+            renderCustomersList();
+        }
+
+        function deleteCustomer(idx) {
+            if (confirm("Are you sure you want to remove this customer?")) {
+                let customers = JSON.parse(localStorage.getItem('store_customers')) || [];
+                customers.splice(idx, 1);
+                localStorage.setItem('store_customers', JSON.stringify(customers));
+                renderCustomersList();
+            }
+        }
+
+        // 5. SUPPLIERS COMPONENT LOGICS
+        function renderSuppliersList() {
+            calculateMetrics();
+            const suppliers = JSON.parse(localStorage.getItem('store_suppliers')) || [];
+            const tbody = document.getElementById('suppliers-table-body');
+            tbody.innerHTML = "";
+
+            suppliers.forEach((s, idx) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="px-6 py-4">${idx + 1}</td>
+                        <td class="px-6 py-4 font-bold text-slate-800">${s.name}</td>
+                        <td class="px-6 py-4 text-gray-500">${s.email}</td>
+                        <td class="px-6 py-4 font-bold text-slate-600">${s.phone}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="deleteSupplier(${idx})" class="p-1.5 hover:bg-red-50 text-red-600 rounded transition"><i class="fa-regular fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openSupplierModal() {
+            document.getElementById('modal-supp-name').value = "";
+            document.getElementById('modal-supp-email').value = "";
+            document.getElementById('modal-supp-phone').value = "";
+            document.getElementById('supplier-modal').classList.remove('hidden');
+        }
+
+        function closeSupplierModal() {
+            document.getElementById('supplier-modal').classList.add('hidden');
+        }
+
+        function handleSupplierSubmit(event) {
+            event.preventDefault();
+            const name = document.getElementById('modal-supp-name').value;
+            const email = document.getElementById('modal-supp-email').value;
+            const phone = document.getElementById('modal-supp-phone').value;
+
+            let suppliers = JSON.parse(localStorage.getItem('store_suppliers')) || [];
+            suppliers.push({ id: Date.now(), name, email, phone });
+            localStorage.setItem('store_suppliers', JSON.stringify(suppliers));
+
+            closeSupplierModal();
+            renderSuppliersList();
+        }
+
+        function deleteSupplier(idx) {
+            if (confirm("Are you sure you want to remove this supplier?")) {
+                let suppliers = JSON.parse(localStorage.getItem('store_suppliers')) || [];
+                suppliers.splice(idx, 1);
+                localStorage.setItem('store_suppliers', JSON.stringify(suppliers));
+                renderSuppliersList();
+            }
+        }
+
+        // 6. REPORTS COMPONENT LOGICS
+        function renderReportsView() {
+            const history = JSON.parse(localStorage.getItem('store_sales_history')) || [];
+            const container = document.getElementById('sales-history-list');
+            container.innerHTML = "";
+
+            if (history.length === 0) {
+                container.innerHTML = `<p class="text-center text-sm text-gray-400 py-6">No sales transactions processed yet.</p>`;
+                return;
+            }
+
+            history.forEach(tx => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-50 border p-3 rounded-xl shadow-sm hover:shadow transition">
+                        <div>
+                            <span class="text-[10px] bg-slate-900 text-white font-bold px-1.5 py-0.5 rounded">${tx.id}</span>
+                            <p class="text-sm font-bold text-slate-800 mt-1">${tx.customerName}</p>
+                            <span class="text-[10px] text-gray-400 font-semibold">${tx.date}</span>
+                        </div>
+                        <span class="text-sm font-bold text-emerald-600">+$${parseFloat(tx.total).toFixed(2)}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function generateStoreQr() {
+            const qrSec = document.getElementById('store-qr-section');
+            qrSec.classList.remove('hidden');
+            alert("Official Store database scannable QR generated successfully below.");
+        }
+
+        function handleLogout() {
+            alert("Logged out successfully! Returning to default admin panel.");
+        }
+
+        // Window Initializer
+        window.onload = function() {
+            initDb();
+            switchTab('dashboard');
+        }
+    </script>
+</body>
+</html>
